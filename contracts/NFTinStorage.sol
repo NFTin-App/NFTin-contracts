@@ -21,7 +21,8 @@ uint256 public testVar;  //dev
     mapping(address => uint256) public profiles; //wallet => profile
     mapping(address => bool) public isOnboarded;
     mapping(uint256 => uint256[]) public postList; //profile => [postId]
-    mapping(uint256 => uint256[]) public collections; //profile => posts
+    mapping(uint256 => mapping(uint256 => uint256[])) public collections; //profile => collectionId => posts
+    mapping(uint256 => uint256) public collectionsCounter; //profile => count
     mapping(uint256 => mapping(uint256 => Comments[])) public comments; //profile => post => comments[]
     mapping(uint256 => Mirrors[]) public mirrors; //profile => mirrors
     mapping(uint256 => mapping(uint256 => mapping(uint256 => bool)))

@@ -151,6 +151,37 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         lastRewardRating[_profileId] = rating[_profileId];
     }
 
+    function createCollection(uint256 _profileId, uint256[] calldata _posts)
+        external
+    {
+        uint256 _length = _posts.length;
+        uint256[] memory _postList = postList[_profileId];
+        // uint256[] storage _collections = collections[_profileId][collectionsCounter[_profileId] + 1];
+        bool _pubExist;
+        bool _duplicate;
+
+        for (uint256 i = 0; i < _length; i++) {
+            _pubExist = false;
+            for (uint256 j = 0; j < _postList.length; j++) {
+                if (_postList[j] == _posts[i]) _pubExist = true;
+            }
+            require(_pubExist, "Pub doesn`t exist");
+
+            for (uint256 k = 0; k < _length; k++) {
+                if (i != k) {
+                    if (_posts[i] == _posts[k]) {
+                        _duplicate = true;
+                    }
+                }
+            }
+            require(!_duplicate, "Duplicate");
+        }
+        collectionsCounter[_profileId]++;
+        for (uint256 i = 0; i < _length; i++) {
+            collections[_profileId][collectionsCounter[_profileId]].push(_posts[i]);
+        }
+    }
+
     function disablePost(uint256 _profileId, uint256 _postId)
         external
     // ownerOrAdmin
@@ -254,6 +285,10 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
 
         uint256 _rating = rating[_profileId] - lastRewardRating[_profileId];
         return (_rating * 1 ether) / rewardsScaler;
+    }
+
+    function getCollection(uint256 _profileId, uint256 _collectionId) external view returns(uint256[] memory){
+        return collections[_profileId][_collectionId];
     }
 
     function getPostCost(uint256 _profileId) internal view returns (uint256) {

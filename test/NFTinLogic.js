@@ -28,7 +28,6 @@ const commentStruct = [
   ZERO_ADDRESS,
   [],
 ];
-console.log({postStruct})
 const mirrorStruct = [1, 1, 1, [], ZERO_ADDRESS, []];
 
 describe("NFTinLogic", function () {
@@ -195,6 +194,23 @@ describe("NFTinLogic", function () {
       await nFTinLogic.disablePost(1, postCount);
       const postList = await nFTinLogic.getPostList(1);
       expect(postList[0]).to.eq(0)
+
+    })
+
+    it("should cteate collection", async () =>{
+      const { nFTinLogic, lens, owner, user2, address721 } = await loadFixture(
+        deployNFTinLogic
+      );
+      await nFTinLogic.connect(user2).setPost(postStruct, address721, 1, 0);
+      await nFTinLogic.connect(user2).setPost(postStruct, address721, 1, 0)
+      const postCount = await lens.connect(user2).getPubCount(1);
+      // await nFTinLogic.disablePost(1, postCount);
+      // const postList = await nFTinLogic.getPostList(1);
+      // expect(postList[0]).to.eq(0)
+      await nFTinLogic.connect(user2).createCollection(1, [postCount, postCount -1])
+      const collection = await nFTinLogic.getCollection(1, 1)
+
+      console.log({collection})
 
     })
   });

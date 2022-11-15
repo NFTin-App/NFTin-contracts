@@ -88,7 +88,6 @@ describe("NFTinLogic", function () {
     };
   }
 
-
   describe("Main functions", () => {
     it("Should set the right lensAddress", async function () {
       const { nFTinLogic, lens } = await loadFixture(deployNFTinLogic);
@@ -185,7 +184,7 @@ describe("NFTinLogic", function () {
       expect(likesCount).to.eq(1);
     });
 
-    it("should disable publication", async () =>{
+    it("should disable publication", async () => {
       const { nFTinLogic, lens, owner, user2, address721 } = await loadFixture(
         deployNFTinLogic
       );
@@ -193,26 +192,25 @@ describe("NFTinLogic", function () {
       const postCount = await lens.connect(user2).getPubCount(1);
       await nFTinLogic.disablePost(1, postCount);
       const postList = await nFTinLogic.getPostList(1);
-      expect(postList[0]).to.eq(0)
+      expect(postList[0]).to.eq(0);
+    });
 
-    })
-
-    it("should cteate collection", async () =>{
+    it("should cteate collection", async () => {
       const { nFTinLogic, lens, owner, user2, address721 } = await loadFixture(
         deployNFTinLogic
       );
       await nFTinLogic.connect(user2).setPost(postStruct, address721, 1, 0);
-      await nFTinLogic.connect(user2).setPost(postStruct, address721, 1, 0)
+      await nFTinLogic.connect(user2).setPost(postStruct, address721, 1, 0);
       const postCount = await lens.connect(user2).getPubCount(1);
-      // await nFTinLogic.disablePost(1, postCount);
-      // const postList = await nFTinLogic.getPostList(1);
-      // expect(postList[0]).to.eq(0)
-      await nFTinLogic.connect(user2).createCollection(1, [postCount, postCount -1])
-      const collection = await nFTinLogic.getCollection(1, 1)
+      await nFTinLogic
+        .connect(user2)
+        .createCollection(1, [postCount, postCount - 1]);
+      const collection = await nFTinLogic.getCollection(1, 1);
+      const collectionById = await nFTinLogic.getCollectionById(1);
 
-      console.log({collection})
-
-    })
+      expect(collection[0]).to.eq(postCount);
+      expect(collectionById[2][0]).to.eq(postCount);
+    });
   });
 
   describe("Reward and fees", () => {

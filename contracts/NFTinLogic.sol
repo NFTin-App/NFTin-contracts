@@ -5,12 +5,12 @@ pragma solidity ^0.8.10;
 import {LensInteractions} from "./LensInteractions.sol";
 import {DataTypes} from "./DataTypes.sol";
 import {INFTinLogic} from "./INFTinLogic.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+// import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {NFTsInteractions} from "./NFTsInteractions.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
+contract NFTinLogic is LensInteractions, NFTsInteractions {
     constructor() {
         owner = msg.sender;
     }
@@ -52,7 +52,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         _nfts.nftType = _type;
         nfts[vars.profileId].push(_nfts);
         postEnable[vars.profileId][_postId] = true;
-        emit posted(msg.sender, vars);
     }
 
     function setComment(DataTypes.CommentData calldata vars)
@@ -76,7 +75,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         comments[vars.profileIdPointed][vars.pubIdPointed].push(_comment);
         addRating(vars.profileIdPointed, vars.pubIdPointed);
         activityPerDay[vars.profileId].push(block.timestamp);
-        emit commented(msg.sender, vars);
     }
 
     function setMirror(DataTypes.MirrorData calldata vars)
@@ -99,7 +97,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         mirrors[vars.profileId].push(_mirror);
         addRating(vars.profileIdPointed, vars.pubIdPointed);
         activityPerDay[vars.profileId].push(block.timestamp);
-        emit mirrored(msg.sender, vars);
     }
 
     function setLike(
@@ -122,7 +119,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         likesCount[_profileIdPointed][_postId]++;
         addRating(_profileIdPointed, _postId);
         activityPerDay[_profileId].push(block.timestamp);
-        emit liked(msg.sender, _profileIdPointed, _postId);
     }
 
     function getReward(uint256 _profileId) external profileOwner(_profileId) {
@@ -156,7 +152,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
     {
         uint256 _length = _posts.length;
         uint256[] memory _postList = postList[_profileId];
-        // uint256[] storage _collections = collections[_profileId][collectionsCounter[_profileId] + 1];
         bool _pubExist;
         bool _duplicate;
 
@@ -176,9 +171,39 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
             }
             require(!_duplicate, "Duplicate");
         }
-        collectionsCounter[_profileId]++;
+        collectionsNum[_profileId]++;
+        collectionsCounter++;
         for (uint256 i = 0; i < _length; i++) {
-            collections[_profileId][collectionsCounter[_profileId]].push(_posts[i]);
+            collections[_profileId][collectionsNum[_profileId]].push(_posts[i]);
+        }
+
+        collectionStruct storage _newCollection = collectionsById[collectionsCounter];
+        _newCollection.id = collectionsCounter;
+        _newCollection.profileId = _profileId;
+        _newCollection.collectionNum = collectionsNum[_profileId];
+
+        collectionsList.push(collectionsCounter);
+    }
+
+    function shuffleCollections() public {
+        (, bytes memory data) = vrfContract.call(
+            abi.encodeWithSignature(
+                "requestRandomWords()" 
+            )
+        );
+        uint256 _id = abi.decode(data, (uint256));
+        (, data) = vrfContract.call(
+            abi.encodeWithSignature(
+                "getRequestStatus(uint256)" , _id
+            )
+        );
+        uint256 _rundomNum = abi.decode(data, (uint256));
+
+        for (uint256 i = 0; i < collectionsList.length; i++) {
+            uint256 n = i + _rundomNum % (collectionsList.length - i);
+            uint256 temp = collectionsList[n];
+            collectionsList[n] = collectionsList[i];
+            collectionsList[i] = temp;
         }
     }
 
@@ -291,12 +316,21 @@ contract NFTinLogic is LensInteractions, NFTsInteractions, INFTinLogic {
         return collections[_profileId][_collectionId];
     }
 
+    function getCollectionById(uint256 _id) external view returns(uint, uint, uint[] memory){
+        uint256[] memory _posts = collections[collectionsById[_id].profileId][collectionsById[_id].collectionNum];
+        return (collectionsById[_id].profileId, collectionsById[_id].collectionNum, _posts);
+    }
+
     function getPostCost(uint256 _profileId) internal view returns (uint256) {
         if (rating[_profileId] != 0) {
             return (rating[_profileId] * 1 ether) / postPriceScaler;
         } else {
             return 1 ether / postPriceScaler;
         }
+    }
+
+    function getCollectionsList() external view returns (uint256[] memory){
+        return collectionsList;
     }
 
     function getActivityCost(uint256 _profileIdPointed, uint256 _pubIdPointed)

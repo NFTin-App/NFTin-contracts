@@ -17,6 +17,10 @@ contract LensInteractions is NFTinStorage {
         tinToken = _tinToken;
     }
 
+    function setVrfContractAddress(address _vrf) external {
+        vrfContract = _vrf;
+    }
+
     function post(DataTypes.PostData memory vars)
         internal
         returns (bool, uint256)

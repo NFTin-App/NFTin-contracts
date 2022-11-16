@@ -5,13 +5,12 @@ pragma solidity ^0.8.10;
 import {LensInteractions} from "./LensInteractions.sol";
 import {DataTypes} from "./DataTypes.sol";
 import {INFTinLogic} from "./INFTinLogic.sol";
-// import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-// import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {NFTsInteractions} from "./NFTsInteractions.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract NFTinLogic is LensInteractions, NFTsInteractions {
-    constructor() {
+
+        constructor() {
         owner = msg.sender;
     }
 
@@ -22,7 +21,6 @@ contract NFTinLogic is LensInteractions, NFTsInteractions {
             _registrationBonus(msg.sender);
             isOnboarded[msg.sender] = true;
         }
-        emit profileOnboarded(msg.sender, _profileId);
     }
 
     function setPost(
@@ -382,27 +380,3 @@ contract NFTinLogic is LensInteractions, NFTsInteractions {
         pubRating[_profile][_pubId] -= _amount;
     }
 }
-
-//     Пользователь:
-//  r = A1 + A2 + … + An
-//  где r - рейтинг NFT, А - активность (коммент, лайк)
-
-//  UR = r1 + r2 + … + rn,
-//  где UR - рейтинг пользователя, rn - рейтинг каждой NFT
-
-//  К = 0.0001 * UR,
-//  где K - коэффициент пользователя
-
-// Ограничения:
-//  В сутки:
-//  - получить не более 100 токенов
-//  - сделать не более 24 активностей
-//  В неделю:
-//  - не больше 1 активности к одной и той же NFT
-
-// Стоимость:
-//  цена размещения NFT = 1 токен * K
-//  цена 1 актиности = (1 токен + r) / 100
-
-// Награды:
-//  забрать токены = 0.01 * r

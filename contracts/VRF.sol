@@ -26,9 +26,9 @@ contract VRF is VRFConsumerBaseV2, ConfirmedOwner {
     uint16 requestConfirmations = 3;
     uint32 numWords = 1;
 
-    constructor()
+    constructor(address _owner)
         VRFConsumerBaseV2(0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed)
-        ConfirmedOwner(msg.sender)
+        ConfirmedOwner(_owner)
     {
         COORDINATOR = VRFCoordinatorV2Interface(
             0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed
@@ -38,7 +38,6 @@ contract VRF is VRFConsumerBaseV2, ConfirmedOwner {
 
     function requestRandomWords()
         external
-        onlyOwner
         returns (uint256 requestId)
     {
         requestId = COORDINATOR.requestRandomWords(

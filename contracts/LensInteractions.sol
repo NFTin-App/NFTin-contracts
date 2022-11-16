@@ -20,6 +20,10 @@ contract LensInteractions is NFTinStorage {
     function setVrfContractAddress(address _vrf) external {
         vrfContract = _vrf;
     }
+    function setOwner(address _owner) external {
+        require(msg.sender == owner);
+        owner = _owner;
+    }
 
     function post(DataTypes.PostData memory vars)
         internal

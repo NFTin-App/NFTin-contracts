@@ -5,8 +5,6 @@ pragma solidity ^0.8.10;
 import {DataTypes} from "./DataTypes.sol";
 
 contract NFTinStorage {
-    constructor() {}
-uint256 public testVar;  //dev
 
     uint256 public registrationBonus = 10 ether;
     uint256 public postPriceScaler = 10000;
@@ -29,8 +27,7 @@ uint256 public testVar;  //dev
     mapping(uint256 => collectionStruct) collectionsById; //id => collection
     mapping(uint256 => mapping(uint256 => Comments[])) public comments; //profile => post => comments[]
     mapping(uint256 => Mirrors[]) public mirrors; //profile => mirrors
-    mapping(uint256 => mapping(uint256 => mapping(uint256 => bool)))
-        public likes; //profile => post => profile => like
+    mapping(uint256 => mapping(uint256 => mapping(uint256 => bool)))public likes; //profile => post => profile => like
     mapping(uint256 => mapping(uint256 => uint256)) public likesCount; //profile => pub => count
     mapping(uint256 => mapping(uint256 => uint256)) public pubRating; //profile => pub => rating
     mapping(uint256 => uint256[]) public activityPerDay; //profile => timestamp
@@ -111,18 +108,4 @@ uint256 public testVar;  //dev
         _;
     }
 
-
-    event profileOnboarded(
-        address indexed _profileAddress,
-        uint256 indexed _profileId
-    );
-
 }
-
-// todo:
-// control mechanism
-// owner, profile owner
-
-//profile rating = 100 // 80
-//last reward rating = 80 //60
-//posts rating 10, 20, 30, 40 // 10, 30, 40
